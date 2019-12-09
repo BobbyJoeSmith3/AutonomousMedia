@@ -2,7 +2,7 @@ console.log("%c p5.geolocation Loaded ", "color:pink; background:black; ");
 
 
 /**
-* Check if locaiton services are available
+* Check if location services are available
 *
 * Returns true if geolocation is available
 *
@@ -31,6 +31,7 @@ p5.prototype.geoCheck = function(){
 p5.prototype.getCurrentPosition = function(callback, errorCallback) {
 
   var ret = {};
+  var self = this;
 
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(success, geoError);
@@ -38,13 +39,13 @@ p5.prototype.getCurrentPosition = function(callback, errorCallback) {
     geoError("geolocation not available");
   };
 
-    function geoError(message){
-      console.log(message.message);
-      ret.error = message.message;
-       if(typeof errorCallback == 'function'){ errorCallback(message.message) };
-    }
+  function geoError(message){
+    console.log(message.message);
+    ret.error = message.message;
+    if(typeof errorCallback == 'function'){ errorCallback(message.message) };
+  }
 
-    function success(position){
+  function success(position){
       // console.log(position);
 
       //get the entire position object....
@@ -61,18 +62,19 @@ p5.prototype.getCurrentPosition = function(callback, errorCallback) {
       // }
 
       //get only the coords part of the position object
-          for(var x in position.coords){
-            ret[x] = position.coords[x];
-          }
-
-      if(typeof callback == 'function'){ callback(position.coords) };
+    for(var x in position.coords){
+      ret[x] = position.coords[x];
+      ret['timestamp'] = position.timestamp;
     }
+    if (typeof self._decrementPreload === 'function') { self._decrementPreload() };
+    if(typeof callback == 'function'){ callback(position.coords) };
+  }
 
-    return ret;
+  return ret;
 };
 
 //add the get Current position to the preload stack.
-p5.prototype.registerPreloadMethod('getCurrentPosition');
+p5.prototype.registerPreloadMethod('getCurrentPosition', p5.prototype);
 
 /**
 * Get User's Current Position on an interval
@@ -233,11 +235,9 @@ p5.prototype.isLocationInPolygon = function(poly, pt){
 * @param  {function} a callback to fire when the user is inside the geoFenceCircle
 * @param  {function} a callback to fire when the user is outside the geoFenceCircle
 * @param  {string} units to use: 'km' or 'mi', 'mi' is default if left blank
-* @param  {object} the geo location object
 * @param  {object} an positionOptions object: enableHighAccuracy, maximumAge, timeout
 */
-// p5.prototype.geoFenceCircle = function(lat, lon, fence, insideCallback, outsideCallback, units, options){
-p5.prototype.geoFenceCircle = function(lat, lon, fence, insideCallback, outsideCallback, units, obj, options){
+p5.prototype.geoFenceCircle = function(lat, lon, fence, insideCallback, outsideCallback, units, options){
 
   this.lat = lat;
   this.lon = lon;
@@ -249,32 +249,19 @@ p5.prototype.geoFenceCircle = function(lat, lon, fence, insideCallback, outsideC
   this.insideFence = false;
   this.options = options;
   this.id = '';
-  this.obj = obj;
 
     this.geoError = function(message){
       console.log("geoFenceCircle Error :" + message);
     }
 
-    // this.success = function(position){
-    //   this.distance = calcGeoDistance(this.lat,this.lon, position.coords.latitude, position.coords.longitude, this.units);
-    //
-    //   if(this.distance <= this.fence){
-    //       if(typeof this.insideCallback == 'function'){ this.insideCallback(position.coords) };
-    //       this.insideFence = true;
-    //   }else{
-    //     if(typeof this.outsideCallback == 'function'){ this.outsideCallback(position.coords) };
-    //     this.insideFence = false;
-    //   }
-    // }
-
     this.success = function(position){
       this.distance = calcGeoDistance(this.lat,this.lon, position.coords.latitude, position.coords.longitude, this.units);
 
       if(this.distance <= this.fence){
-          if(typeof this.insideCallback == 'function'){ this.insideCallback(position.coords, this.obj) };
+          if(typeof this.insideCallback == 'function'){ this.insideCallback(position.coords) };
           this.insideFence = true;
       }else{
-        if(typeof this.outsideCallback == 'function'){ this.outsideCallback(position.coords, this.obj) };
+        if(typeof this.outsideCallback == 'function'){ this.outsideCallback(position.coords) };
         this.insideFence = false;
       }
     }
