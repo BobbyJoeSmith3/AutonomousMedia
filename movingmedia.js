@@ -21,10 +21,25 @@ let mediaSites = [
       mediaID: 'C',
       latitude: 41.826439,
       longitude: -71.408733,
+      // pixelLat: myMap.latLngToPixel(this.latitude, this.longitude).x,
+      // pixelLong: myMap.latLngToPixel(this.latitude, this.logitude).y,
       fenceRadius: 0.1,
       insideCallback: insideTheFence,
       outsideCallback: outsideTheFence,
       units: 'mi'
+      // coordsToPix: function () {
+      //     let pixelCoords = myMap.latLngToPixel(this.latitude, this.longitude);
+      //     this.pixelLat = pixelCoords.x;
+      //     this.pixelLong = pixelCoords.y;
+      //     return(pixelCoords);
+      // },
+      // pixToCoords: function() {
+      //     let coords = myMap.pixelToLatLng(this.pixelLat, this.pixelLong);
+      //     console.log(coords);
+      //     this.latitude = coords.lat;
+      //     this.longitude = coords.lng;
+      //     return(coords);
+      // }
       // checkingGeoFence: false
     }
 ]
@@ -34,6 +49,11 @@ let userCoordLoc;
 
 let fence;
 
+function preload() {
+    console.log("calculating user position");
+    userCoordLoc = getCurrentPosition();
+    console.log("user position found");
+}
 
 function setup() {
     // Check for geoLocation availability
@@ -41,15 +61,15 @@ function setup() {
 		//geolocation is available
         console.log("geoLocation enabled");
         // get initial position information of user
-        userCoordLoc = getCurrentPosition();
+        // userCoordLoc = getCurrentPosition();
         // getCurrentPosition(printPosition);
 	}else{
 		//error getting geolocaion
         console.log("something went wrong!");
 	}
 
-    canvas = createCanvas(600, 600);
-
+    canvas = createCanvas(windowWidth, windowHeight);
+    frameRate(2);
     // Create a tile map with the options defined above
     myMap = mappa.tileMap(options);
     // Overlay the canvas over the tile map
@@ -61,9 +81,16 @@ function setup() {
     // Only redraw the sites when the map position changes and not every frame
     myMap.onChange(drawPoint);
 
+    // mediaSites[0].coordsToPix();
+    // console.log("Pixel Latitude: " + mediaSites[0].pixelLat);
+    // mediaSites[0].pixToCoords();
+    // console.log("Coordinate Latitude: " + mediaSites[0].latitude);
+
 }
 
-function draw() {}
+function draw() {
+    movePosition(mediaSites);
+}
 
 function drawPoint() {
     // Clear the canvas
@@ -79,7 +106,7 @@ function drawPoint() {
 
     // Convert user location to pixels and draw it
     fill(100,100,200);
-    const userPixLoc = myMap.latLngToPixel(userCoordLoc.latitude, userCoordLoc.longitude);
+    let userPixLoc = myMap.latLngToPixel(userCoordLoc.latitude, userCoordLoc.longitude);
     ellipse(userPixLoc.x, userPixLoc.y, 20, 20);
 
     // Calculate distance to first site
@@ -105,3 +132,36 @@ function printPosition(position) {
     print(position.heading);
     print(position.speed);
 }
+
+let t = 0.0;
+let u = 1000;
+function movePosition(sites) {
+    let noiseScale = .00006;
+    t = t + 0.01;
+    u = u + 0.01;
+    let x = noise(t);
+    let latShift = map(x, 0.0, 1.0, noiseScale * -1, noiseScale);
+    console.log(latShift);
+    sites[0].latitude += latShift;
+    let y = noise(u);
+    let lngShift = map(y, 0.0, 1.0, noiseScale * -1, noiseScale);
+    console.log(lngShift);
+    sites[0].longitude += lngShift;
+
+    drawPoint();
+}
+
+/*
+TODO:
+ — Make autonomous media smarter
+ — Some run from you
+ — Some hide/go invisible when you get within a certain Distance
+ — Some are drawn to you if you perform some action like singing
+ — Some defend themselves by closing the browser tab or scrambling the pixels on the site
+ — Media generates and dies
+ — Media flocks
+ — Some media are stationary plant media which germinate and augment over generations
+ — Use different shapes and color for different types of media
+ — Make media landscape persistent
+
+*/
