@@ -1,0 +1,50 @@
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'B612 Mono', monospace;
+  font-size: 16;
+  padding: 1vh 2vw;
+}
+section {
+  width: 90vw;
+  max-width: 1200px;
+  margin: 0 auto;
+  margin-bottom: 4rem;
+}
+
+p {
+  line-height: 1.6;
+  font-size: 0.8rem;
+  padding-bottom: 1.6rem;
+}
+
+img {
+  /* width: 24rem; */
+  width: 100%;
+  /* max-width: 24rem; */
+  margin-bottom: 1rem;
+}
+.bts, .illustrations, .renders, .maize {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-content: space-around;
+}
+.container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 25vh 25vh 25vh 25vh;
+}
+canvas {
+  display: block;
+}
+
+@media screen and (max-width: 480px) {
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+}
