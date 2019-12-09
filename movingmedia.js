@@ -15,7 +15,18 @@ const options = {
     style: "https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png" // Dark map style
 }
 
-var userLocation;
+var mediaSites = [
+    {
+      mediaID: 'C',
+      latitude: 41.826439,
+      longitude: -71.408733,
+      fenceRadius: .1,
+      checkingGeoFence: false
+    }
+]
+
+// Coordinate location of user
+let userCoordLoc;
 
 
 function setup() {
@@ -24,7 +35,7 @@ function setup() {
 		//geolocation is available
         console.log("geoLocation enabled");
         // get initial position information of user
-        userLocation = getCurrentPosition();
+        userCoordLoc = getCurrentPosition();
         // getCurrentPosition(printPosition);
 	}else{
 		//error getting geolocaion
@@ -52,14 +63,19 @@ function drawPoint() {
     fill(200, 100, 100);
 
     // Get the canvas position for the latitude and longitude of Providence Rhode Island
-    const providence = myMap.latLngToPixel(41.825995, -71.407743);
+    // const providence = myMap.latLngToPixel(41.825995, -71.407743);
+    const providence = myMap.latLngToPixel(mediaSites[0].latitude, mediaSites[0].longitude);
     // Using that position, draw an ellipse
     ellipse(providence.x, providence.y, 20, 20);
 
     // Convert user location to pixels and draw it
     fill(100,100,200);
-    const userLoc = myMap.latLngToPixel(userLocation.latitude, userLocation.longitude);
-    ellipse(userLoc.x, userLoc.y, 20, 20);
+    const userPixLoc = myMap.latLngToPixel(userCoordLoc.latitude, userCoordLoc.longitude);
+    ellipse(userPixLoc.x, userPixLoc.y, 20, 20);
+
+    // Calculate distance to first site
+    var distance = calcGeoDistance(userCoordLoc.latitude, userCoordLoc.longitude, mediaSites[0].latitude, mediaSites[0].longitude);
+    print(`Distance to site ${distance}`);
 }
 
 function printPosition(position) {
