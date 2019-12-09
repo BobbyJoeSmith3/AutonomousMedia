@@ -5,6 +5,13 @@ let canvas;
 // Create a new Mappa instance using Leaflet
 const mappa = new Mappa("Leaflet");
 
+// For perlin noise
+let t = 0.0;
+let u = 1000;
+
+// frameRate
+let fr = 1;
+
 // Put all of the map options in a single object
 const options = {
     // RISD Design Center
@@ -23,7 +30,7 @@ let mediaSites = [
       longitude: -71.408733,
       // pixelLat: myMap.latLngToPixel(this.latitude, this.longitude).x,
       // pixelLong: myMap.latLngToPixel(this.latitude, this.logitude).y,
-      fenceRadius: 0.1,
+      fenceRadius: 0.05,
       insideCallback: insideTheFence,
       outsideCallback: outsideTheFence,
       units: 'mi'
@@ -41,13 +48,43 @@ let mediaSites = [
       //     return(coords);
       // }
       // checkingGeoFence: false
-    }
+  },
+  {
+    loc: 'RISD ID Building',
+    mediaID: 'A',
+    latitude: 41.8231969,
+    longitude: -71.4064552,
+    fenceRadius: 0.05,
+    insideCallback: insideTheFence,
+    outsideCallback: outsideTheFence,
+    units: 'mi'
+  },
+  {
+    loc: 'RISD CIT Building',
+    mediaID: 'B',
+    latitude: 41.8224994,
+    longitude: -71.4118984,
+    fenceRadius: 0.05,
+    insideCallback: insideTheFence,
+    outsideCallback: outsideTheFence,
+    units: 'mi'
+  },
+  {
+    loc: 'RISD Nature Lab',
+    mediaID: 'D',
+    latitude: 41.827022,
+    longitude: -71.407982,
+    fenceRadius: 0.05,
+    insideCallback: insideTheFence,
+    outsideCallback: outsideTheFence,
+    units: 'mi'
+  },
 ]
 
 // Coordinate location of user
 let userCoordLoc;
 
-let fence;
+let fence0, fence1, fence2, fence3;
 
 function preload() {
     console.log("calculating user position");
@@ -69,14 +106,18 @@ function setup() {
 	}
 
     canvas = createCanvas(windowWidth, windowHeight);
-    frameRate(2);
+    frameRate(fr);
     // Create a tile map with the options defined above
     myMap = mappa.tileMap(options);
     // Overlay the canvas over the tile map
     myMap.overlay(canvas);
 
     // Create geoFenceCircle
-    fence = new geoFenceCircle(mediaSites[0].latitude, mediaSites[0].longitude, mediaSites[0].fenceRadius, mediaSites[0].insideCallback, mediaSites[0].outsideCallback, mediaSites[0].units);
+    // fence1 = new geoFenceCircle(mediaSites[0].latitude, mediaSites[0].longitude, mediaSites[0].fenceRadius, mediaSites[0].insideCallback, mediaSites[0].outsideCallback, mediaSites[0].units);
+
+    for (let i = 0; i < mediaSites.length; i++) {
+      window['fence' + i] = new geoFenceCircle(mediaSites[i].latitude, mediaSites[i].longitude, mediaSites[i].fenceRadius, mediaSites[i].insideCallback, mediaSites[i].outsideCallback, mediaSites[i].units);
+    }
 
     // Only redraw the sites when the map position changes and not every frame
     myMap.onChange(drawPoint);
@@ -100,9 +141,15 @@ function drawPoint() {
 
     // Get the canvas position for the latitude and longitude of Providence Rhode Island
     // const providence = myMap.latLngToPixel(41.825995, -71.407743);
-    const providence = myMap.latLngToPixel(mediaSites[0].latitude, mediaSites[0].longitude);
-    // Using that position, draw an ellipse
-    ellipse(providence.x, providence.y, 20, 20);
+    // const providence = myMap.latLngToPixel(mediaSites[0].latitude, mediaSites[0].longitude);
+    // // Using that position, draw an ellipse
+    // ellipse(providence.x, providence.y, 20, 20);
+
+    // Loop through mediaSites and draw moveable media to screen
+    for (let i = 0; i < mediaSites.length; i++) {
+      let moveableMedia = myMap.latLngToPixel(mediaSites[i].latitude, mediaSites[i].longitude);
+      ellipse(moveableMedia.x, moveableMedia.y, 20, 20);
+    }
 
     // Convert user location to pixels and draw it
     fill(100,100,200);
@@ -110,12 +157,12 @@ function drawPoint() {
     ellipse(userPixLoc.x, userPixLoc.y, 20, 20);
 
     // Calculate distance to first site
-    var distance = calcGeoDistance(userCoordLoc.latitude, userCoordLoc.longitude, mediaSites[0].latitude, mediaSites[0].longitude);
-    print(`Distance to site ${distance}`);
+    // var distance = calcGeoDistance(userCoordLoc.latitude, userCoordLoc.longitude, mediaSites[0].latitude, mediaSites[0].longitude);
+    // print(`Distance to site ${distance}`);
 }
 
 function insideTheFence(position) {
-    print("You are inside the fence!");
+    console.log("You found me!");
 }
 
 function outsideTheFence(position) {
@@ -133,20 +180,41 @@ function printPosition(position) {
     print(position.speed);
 }
 
-let t = 0.0;
-let u = 1000;
 function movePosition(sites) {
-    let noiseScale = .00006;
-    t = t + 0.01;
-    u = u + 0.01;
-    let x = noise(t);
-    let latShift = map(x, 0.0, 1.0, noiseScale * -1, noiseScale);
-    console.log(latShift);
-    sites[0].latitude += latShift;
-    let y = noise(u);
-    let lngShift = map(y, 0.0, 1.0, noiseScale * -1, noiseScale);
-    console.log(lngShift);
-    sites[0].longitude += lngShift;
+    let noiseScale = .00003;
+    t = t + 0.005;
+    u = u + 0.005;
+    // let x = noise(t);
+    // let latShift = map(x, 0.0, 1.0, noiseScale * -1, noiseScale);
+    // console.log(latShift);
+    // sites[0].latitude += latShift;
+    // let y = noise(u);
+    // let lngShift = map(y, 0.0, 1.0, noiseScale * -1, noiseScale);
+    // console.log(lngShift);
+    // sites[0].longitude += lngShift;
+
+    // for (let i = 0; i < sites.length; i++) {
+    //   let x = noise(t) * random(0,1);
+    //   let latShift = map(x, 0.0, 1.0, -1, 1);
+    //   console.log(latShift);
+    //   sites[i].latitude += latShift;
+    //   let y = noise(u) * random(0,1);
+    //   let lngShift = map(y, 0.0, 1.0, -1 , 1);
+    //   console.log(lngShift);
+    //   sites[i].longitude += lngShift;
+    // }
+    for (let i = 0; i < sites.length; i++) {
+      let x = noise(t) * random(0,1);
+      let latShift = map(x, 0.0, 1.0, -1, 1);
+      let pixPos = myMap.latLngToPixel(sites[i].latitude, sites[i].longitude);
+      pixPos.x += latShift;
+      let y = noise(u) * random(0,1);
+      let lngShift = map(y, 0.0, 1.0, -1 , 1);
+      pixPos.y += lngShift;
+      let newCoord = myMap.pixelToLatLng(pixPos.x, pixPos.y);
+      sites[i].latitude = newCoord.lat;
+      sites[i].longitude = newCoord.lng;
+    }
 
     drawPoint();
 }

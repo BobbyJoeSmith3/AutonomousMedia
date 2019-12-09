@@ -7,6 +7,8 @@ body {
   font-family: 'B612 Mono', monospace;
   font-size: 16;
   padding: 1vh 2vw;
+  background-color: #090909;
+  color: white;
 }
 section {
   width: 90vw;
