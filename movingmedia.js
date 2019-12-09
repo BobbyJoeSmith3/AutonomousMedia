@@ -15,18 +15,24 @@ const options = {
     style: "https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png" // Dark map style
 }
 
-var mediaSites = [
+let mediaSites = [
+    //fence = new geoFenceCircle(44.979779, -93.325499, 0.05, insideTheFence, outsideTheFence, 'mi')
     {
       mediaID: 'C',
       latitude: 41.826439,
       longitude: -71.408733,
-      fenceRadius: .1,
-      checkingGeoFence: false
+      fenceRadius: 0.1,
+      insideCallback: insideTheFence,
+      outsideCallback: outsideTheFence,
+      units: 'mi'
+      // checkingGeoFence: false
     }
 ]
 
 // Coordinate location of user
 let userCoordLoc;
+
+let fence;
 
 
 function setup() {
@@ -48,6 +54,9 @@ function setup() {
     myMap = mappa.tileMap(options);
     // Overlay the canvas over the tile map
     myMap.overlay(canvas);
+
+    // Create geoFenceCircle
+    fence = new geoFenceCircle(mediaSites[0].latitude, mediaSites[0].longitude, mediaSites[0].fenceRadius, mediaSites[0].insideCallback, mediaSites[0].outsideCallback, mediaSites[0].units);
 
     // Only redraw the sites when the map position changes and not every frame
     myMap.onChange(drawPoint);
@@ -76,6 +85,14 @@ function drawPoint() {
     // Calculate distance to first site
     var distance = calcGeoDistance(userCoordLoc.latitude, userCoordLoc.longitude, mediaSites[0].latitude, mediaSites[0].longitude);
     print(`Distance to site ${distance}`);
+}
+
+function insideTheFence(position) {
+    print("You are inside the fence!");
+}
+
+function outsideTheFence(position) {
+    print("You are outside the fence :(")
 }
 
 function printPosition(position) {
