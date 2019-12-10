@@ -95,15 +95,15 @@ function preload() {
 function setup() {
     // Check for geoLocation availability
     if(geoCheck() == true){
-		//geolocation is available
-        console.log("geoLocation enabled");
-        // get initial position information of user
-        // userCoordLoc = getCurrentPosition();
-        // getCurrentPosition(printPosition);
-	}else{
-		//error getting geolocaion
-        console.log("something went wrong!");
-	}
+  		//geolocation is available
+          console.log("geoLocation enabled");
+          // get initial position information of user
+          // userCoordLoc = getCurrentPosition();
+          // getCurrentPosition(printPosition);
+  	}else{
+  		//error getting geolocaion
+          console.log("something went wrong!");
+  	}
 
     canvas = createCanvas(windowWidth, windowHeight);
     frameRate(fr);
@@ -130,7 +130,9 @@ function setup() {
 }
 
 function draw() {
-    movePosition(mediaSites);
+
+  movePosition(mediaSites);
+
 }
 
 function drawPoint() {
@@ -138,6 +140,11 @@ function drawPoint() {
     clear();
     // Add a color to our ellipse
     fill(200, 100, 100);
+    // for (let g = 0; g < 25; g++) {
+    //   let a = random(0, width);
+    //   let b = random(0, height);
+    //   ellipse(a, b, 20, 20);
+    // }
 
     // Get the canvas position for the latitude and longitude of Providence Rhode Island
     // const providence = myMap.latLngToPixel(41.825995, -71.407743);
